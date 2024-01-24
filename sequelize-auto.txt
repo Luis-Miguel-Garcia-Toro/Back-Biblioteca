@@ -1,0 +1,3 @@
+sequelize-auto -o "./src/models" -d bookverse -h localhost -u root -p 3306 -e mysql
+sequelize-auto -o "./src/models" -d bookverse -h localhost -u root -p 3306 -e mysql  -x puchi1410
+npx sequelize-auto -o "./src/models" -d bookverse -h localhost -u book -p 3306 -e mysql -x 1234

@@ -1,0 +1,167 @@
+-- drop database bookverse;
+CREATE DATABASE IF NOT EXISTS bookverse;
+USE bookverse;
+
+CREATE TABLE IF NOT EXISTS userr (
+    user_id INT(10) PRIMARY KEY AUTO_INCREMENT NOT NULL,
+    user_name VARCHAR(10) NOT NULL,
+    user_lastname VARCHAR(50) NOT NULL,
+    user_email VARCHAR(50) NOT NULL,
+    user_password VARCHAR(255) NOT NULL,
+    user_location VARCHAR(50) NOT NULL,
+    user_literaryInterest VARCHAR(100),
+    user_profilePhoto VARCHAR(2000),
+    user_isActive varchar(10)
+);
+
+CREATE TABLE IF NOT EXISTS category (
+    category_id INT(10) PRIMARY KEY AUTO_INCREMENT,
+    category_name VARCHAR(50) NOT NULL,
+    characteristics VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS author (
+    author_id INT(10) PRIMARY KEY auto_increment NOT NULL,
+    author_name VARCHAR(50) NOT NULL,
+    author_lastname VARCHAR(50) NOT NULL,
+    author_autobiography VARCHAR(2000) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS book (
+    book_id INT(10) PRIMARY KEY AUTO_INCREMENT NOT NULL,
+    book_title VARCHAR(50) NOT NULL,
+    author_id INT(10) NOT NULL,
+    book_yearPublication DATE,
+    book_sypnosis VARCHAR(5000),
+    user_id INT(10),
+    book_frontPage TEXT NOT NULL,
+    category_id INT(10) NOT NULL,
+    FOREIGN KEY(author_id) REFERENCES author(author_id),
+    FOREIGN KEY(category_id) REFERENCES category(category_id),
+    FOREIGN KEY (user_id) REFERENCES userr(user_id)
+);
+
+INSERT INTO author (author_name,author_lastname,author_autobiography)
+VALUES
+    ('John ','Smith', 'N/A'),
+    ('Jane ','Doe','N/A'),
+    ('David ','Johnson', 'N/A'),
+    ('Sarah ','Wilson', 'N/A'),
+    ('Michael','Brown', 'N/A'),
+    ('Emily',' Lee', 'N/A'),
+    ('Daniel',' Davis', 'N/A'),
+    ('Olivia ','Moore', 'N/A'),
+    ('Matthew',' Taylor', 'N/A'),
+    ('Sophia',' Clark', 'N/A');
+
+INSERT INTO category (category_name, characteristics)
+VALUES
+    ('No Ficción', 'Basado en hechos reales'),
+    ('Misterio', 'Intriga y suspense'),
+    ('Ciencia Ficción', 'Elementos de futuro y tecnología avanzada'),
+    ('No Literario', 'Otros temas y géneros');
+
+INSERT INTO userr (user_name, user_lastname, user_email, user_password, user_location, user_literaryInterest, user_profilePhoto,user_isActive)
+VALUES
+    ('Alice', 'Smith', 'alice@example.com', 'password123', 'New York', 'Ciencia Ficción', 'alice.jpg','inactivo'),
+    ('Bob', 'Johnson', 'bob@example.com', 'password456', 'Los Angeles', 'Misterio', 'bob.jpg','activo'),
+    ('Charlie', 'Wilson', 'charlie@example.com', 'password789', 'Chicago', 'Ficción', 'charlie.jpg','inactivo'),
+    ('David', 'Davis', 'david@example.com', 'password123', 'Houston', 'No Ficción', 'david.jpg','activo'),
+    ('Ella', 'Moore', 'ella@example.com', 'password456', 'Miami', 'Ciencia Ficción', 'ella.jpg','activo');
+    
+
+
+INSERT INTO book (book_title, author_id, book_yearPublication, book_sypnosis, book_frontPage, category_id, user_id) 
+VALUES 
+('1984', 7, '2023-01-01', 'En el año 1984 Londres es una ciudad lúgubre en la que la Policía del Pensamiento controla de forma asfixiante la vida de los ciudadanos.', 'https://www.mentesliberadas.com/wp-content/uploads/2018/06/george-orwell-1984-1160x680.jpg', 3,2),
+('Cien años de soledad', 8, '2023-01-01', 'La saga de la estirpe de los Buendía en el mítico Macondo, es una de las narraciones más brillantes y originales del siglo XX.', 'https://www.libro-medellin.com/wp-content/uploads/2021/09/Cien-anos-de-soledad-01.jpg', 4,3),
+('Don Quijote de la Mancha', 9, '2023-01-01', 'Las andanzas del ingenioso hidalgo Don Quijote y su fiel escudero Sancho Panza son un clásico de la literatura universal.', 'https://www.planetalector.com/usuaris/thumbnails/libros/fotos/374/360/portada_don-quijote-de-la-mancha-comic_miguel-de-cervantes_202303011510.jpg', 1,4),
+('En busca del tiempo perdido', 10, '2023-01-01', 'La obra maestra de Marcel Proust, es una de las cumbres de la literatura universal del siglo XX.', 'https://th.bing.com/th/id/R.bc786f3e885eeb2ff99cff2e9efc2f7f?rik=cS8Vyd1Dhh1I6Q&pid=ImgRaw&r=0', 2,5),
+('Guerra y paz', 1, '2023-01-01', 'La vida en Rusia durante la invasión napoleónica en la que Tolstói desarrolla una teoría fatalista de la historia.', 'https://editorial.tirant.com/high/9788467787368.jpg', 1,1);
+
+
+DELIMITER //
+CREATE PROCEDURE usp_save_userr (
+    IN p_user_name VARCHAR(10),
+    IN p_user_lastname VARCHAR(50),
+    IN p_user_email VARCHAR(50),
+    IN p_user_password VARCHAR(100),
+    IN p_user_location VARCHAR(50),
+    IN p_user_literaryInterest VARCHAR(100),
+    IN p_user_profilePhoto VARCHAR(2000),
+    IN p_user_isActive VARCHAR(10)
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        SELECT 'SOMETHING WENT WRONG, TRY AGAIN LATER' AS message;
+    END;
+
+    START TRANSACTION;
+    INSERT INTO userr (user_name, user_lastname, user_email, user_password, user_location, user_literaryInterest, user_profilePhoto, user_isActive)
+    VALUES (p_user_name, p_user_lastname, p_user_email, p_user_password, p_user_location, p_user_literaryInterest, p_user_profilePhoto, p_user_isActive);
+
+    COMMIT;
+    SELECT 'USER SAVED SUCCESSFULLY' AS message;
+END //
+DELIMITER ;
+
+DELIMITER //
+CREATE PROCEDURE usp_update_userr (
+    IN p_user_id INT(10),
+    IN p_user_name VARCHAR(10),
+    IN p_user_lastname VARCHAR(50),
+    IN p_user_email VARCHAR(50),
+    IN p_user_password VARCHAR(100),
+    IN p_user_location VARCHAR(50),
+    IN p_user_literaryInterest VARCHAR(100),
+    IN p_user_profilePhoto VARCHAR(2000),
+    IN p_user_isActive VARCHAR(10)
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        SELECT 'SOMETHING WENT WRONG, TRY AGAIN LATER' AS message;
+    END;
+
+    START TRANSACTION;
+    UPDATE userr
+    SET user_name = p_user_name,
+        user_lastname = p_user_lastname,
+        user_email = p_user_email,
+        user_password = p_user_password,
+        user_location = p_user_location,
+        user_literaryInterest = p_user_literaryInterest,
+        user_profilePhoto = p_user_profilePhoto,
+        user_isActive = p_user_isActive
+    WHERE user_id = p_user_id;
+
+    COMMIT;
+    SELECT 'USER UPDATED SUCCESSFULLY' AS message;
+END //
+DELIMITER ;
+
+DELIMITER //
+CREATE PROCEDURE usp_delete_userr (
+    IN p_user_id INT(10)
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        SELECT 'SOMETHING WENT WRONG, TRY AGAIN LATER' AS message;
+    END;
+
+    START TRANSACTION;
+    DELETE FROM userr WHERE user_id = p_user_id;
+	
+    COMMIT;
+    SELECT 'USER DELETED SUCCESSFULLY' AS message;
+END //
+DELIMITER ;
+
+
+select * from userr;
+select * from book;
