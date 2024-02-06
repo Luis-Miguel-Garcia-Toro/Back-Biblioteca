@@ -1,6 +1,6 @@
-const Sequelize = require('sequelize');
-module.exports = function(sequelize, DataTypes) {
-  return sequelize.define('detalleventas', {
+const {DataTypes} = require('sequelize');
+const {connection} = require('../db/connection')
+const DetalleVenta =  connection.define('DetalleVentas', {
     id: {
       autoIncrement: true,
       type: DataTypes.INTEGER,
@@ -28,7 +28,7 @@ module.exports = function(sequelize, DataTypes) {
       }
     }
   }, {
-    sequelize,
+    connection,
     tableName: 'detalleventas',
     timestamps: false,
     indexes: [
@@ -56,4 +56,4 @@ module.exports = function(sequelize, DataTypes) {
       },
     ]
   });
-};
+module.exports = DetalleVenta
